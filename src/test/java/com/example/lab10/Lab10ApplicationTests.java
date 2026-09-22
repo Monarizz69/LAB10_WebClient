@@ -56,21 +56,49 @@ class Lab10ApplicationTests {
 
     @Test
     void testFindAll() {
-        // TODO: ทดสอบว่า findAll() คืน Flux ที่มี element
-        // Hint: StepVerifier.create(repository.findAll())
-        //         .expectNextCount(3)   ← มี 3 รายการ
-        //         .verifyComplete()
+        // ทดสอบว่า findAll() คืน Flux ที่มีข้อมูลครบ (ค่าเริ่มต้นมี 3 รายการ)
+        StepVerifier.create(repository.findAll())
+                .expectNextCount(3)
+                .verifyComplete();
     }
 
     @Test
     void testSave() {
-        // TODO: ทดสอบ save() บันทึกแล้วคืน Product
-        // Hint: สร้าง Product ใหม่ → save → expectNext → verifyComplete
+        // สร้าง Product จำลองตัวใหม่ขึ้นมาทดสอบ
+        Product newProduct = new Product("4", "iPad Pro", "Electronics", "Apple", 15, 32900.0, "NONE");
+
+        // ทดสอบ save() บันทึกแล้วคืน Product ตัวเดิมกลับมา
+        StepVerifier.create(repository.save(newProduct))
+                .expectNextMatches(p -> p.getId().equals("4") && p.getName().equals("iPad Pro"))
+                .verifyComplete();
+
+        // ตรวจสอบยืนยันว่าข้อมูลถูกบันทึกลง store จริงผ่าน findById
+        StepVerifier.create(repository.findById("4"))
+                .expectNextMatches(p -> p.getName().equals("iPad Pro"))
+                .verifyComplete();
     }
 
     @Test
     void testFindByCategory() {
-        // TODO: ทดสอบ findByCategory("Electronics")
-        // Hint: expectNextCount(3) เพราะมี 3 รายการใน Electronics
+        // ทดสอบ findByCategory("Electronics") ซึ่งข้อมูลตัวอย่างเริ่มต้นอยู่ในหมวดนี้ทั้งหมด
+        StepVerifier.create(repository.findByCategory("Electronics"))
+                .expectNextCount(3)
+                .verifyComplete();
+    }
+
+    @Test
+    void testDeleteById() {
+        // บันทึกข้อมูลชั่วคราวเพื่อนำมาทดสอบลบ
+        Product tempProduct = new Product("99", "Temp Item", "Accessories", "Generic", 5, 500.0, "NONE");
+        repository.save(tempProduct).block();
+
+        // ทดสอบ deleteById คืนค่า Mono.empty() (onComplete ทันที)
+        StepVerifier.create(repository.deleteById("99"))
+                .verifyComplete();
+
+        // ยืนยันว่า id ดังกล่าวถูกลบออกจาก store ไปแล้ว
+        StepVerifier.create(repository.findById("99"))
+                .verifyComplete();
     }
 }
+

@@ -6,92 +6,38 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/**
- * ProductService — Business Logic Layer
- *
- * ✅ @Service, Constructor Injection ครบแล้ว (DIP — SOLID)
- * ❌ TODO: เติม method body ให้ครบทุก method
- *
- * หน้าที่: รับ request จาก Controller → เรียก Repository → คืนผล
- * (SRP — แต่ละ class มีหน้าที่เดียว)
- *
- * Hint Operators ที่ควรใช้:
- *   .map(p -> ...)            แปลงค่า
- *   .flatMap(p -> ...)        async transform
- *   .defaultIfEmpty(...)      fallback ถ้าว่าง
- *   .switchIfEmpty(Mono...)   fallback Mono ถ้าว่าง
- */
 @Service
 public class ProductService {
 
-    // ── Constructor Injection (DIP — SOLID) ─────────────
-    private final ProductRepository repository;
+    private final ProductRepository productRepository;
 
-    public ProductService(ProductRepository repository) {
-        this.repository = repository;
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
-    // ── 1. ดึง Product 1 รายการ ──────────────────────────
-    /**
-     * TODO: เรียก repository.findById(id) แล้วคืนผล
-     *       ถ้าไม่พบให้ throw RuntimeException("Product not found: " + id)
-     *
-     * Hint: repository.findById(id)
-     *       .switchIfEmpty(Mono.error(new RuntimeException(...)))
-     */
-    public Mono<Product> getById(String id) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+    public Mono<Product> getProductById(String id) {
+        return productRepository.findById(id);
     }
 
-    // ── 2. ดึง Product ทั้งหมด ───────────────────────────
-    /**
-     * TODO: เรียก repository.findAll() แล้วคืนผล
-     */
-    public Flux<Product> getAll() {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+    public Flux<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
-    // ── 3. บันทึก Product ────────────────────────────────
-    /**
-     * TODO: เรียก repository.save(product) แล้วคืนผล
-     *
-     * เพิ่มเติม: ถ้า product.getId() เป็น null ให้ generate id ใหม่
-     * Hint: java.util.UUID.randomUUID().toString()
-     */
-    public Mono<Product> save(Product product) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+    public Mono<Product> createProduct(Product product) {
+        return productRepository.save(product);
     }
 
-    // ── 4. ลบ Product ────────────────────────────────────
-    /**
-     * TODO: เรียก repository.deleteById(id) แล้วคืนผล
-     */
-    public Mono<Void> delete(String id) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+    public Mono<Void> deleteProduct(String id) {
+        return productRepository.deleteById(id);
     }
 
-    // ── 5. กรองตาม category ──────────────────────────────
-    /**
-     * TODO: เรียก repository.findByCategory(category) แล้วคืนผล
-     */
-    public Flux<Product> getByCategory(String category) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+    public Flux<Product> getProductsByCategory(String category) {
+        return productRepository.findByCategory(category);
     }
 
-    // ── 6. คำนวณราคาหลังส่วนลด ───────────────────────────
-    /**
-     * TODO: หา Product จาก id แล้วคืน discountedPrice
-     *
-     * Hint: getById(id)
-     *       .map(p -> p.getDiscountedPrice())
-     */
-    public Mono<Double> getDiscountedPrice(String id) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+    // ดึงราคาสินค้าผ่านการดึง object Product แล้ว map เอาเฉพาะฟิลด์ price
+    public Mono<Double> getProductPrice(String id) {
+        return productRepository.findById(id)
+                .map(Product::getPrice);
     }
 }
